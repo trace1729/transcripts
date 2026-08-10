@@ -1,5 +1,5 @@
 @font-face {
-  font-family: "LXGW WenKai Screen";
+  font-family: "LXGW WenKai GB Screen";
   font-style: normal;
   font-weight: 400;
   font-display: swap;
@@ -7,7 +7,7 @@
 }
 
 :root {
-  --md-text-font: Roboto, "LXGW WenKai Screen", "Noto Sans CJK SC", sans-serif;
+  --md-text-font: Roboto, "LXGW WenKai GB Screen", "Noto Sans CJK SC", sans-serif;
 }
 
 body {
