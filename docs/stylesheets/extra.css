@@ -1,13 +1,13 @@
 @font-face {
-  font-family: "LXGW WenKai";
+  font-family: "LXGW WenKai Screen";
   font-style: normal;
   font-weight: 400;
   font-display: swap;
-  src: url("../fonts/lxgw-wenkai-subset.woff2") format("woff2");
+  src: url("../fonts/lxgw-wenkai-screen-subset.woff2") format("woff2");
 }
 
 :root {
-  --md-text-font: Georgia, "LXGW WenKai", "Songti SC", serif;
+  --md-text-font: Roboto, "LXGW WenKai Screen", "Noto Sans CJK SC", sans-serif;
 }
 
 body {

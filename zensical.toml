@@ -17,7 +17,7 @@ extra_javascript = ["javascripts/theme-color.js"]
 # custom_dir = "overrides"
 # favicon = "images/favicon.png"
 language = "zh"
-font = false
+font.text = "Roboto"
 features = [
   "announce.dismiss",
   # "content.action.edit",
