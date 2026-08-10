@@ -416,6 +416,3 @@ What he has in common with Socrates is the willingness to ask uncomfortable ques
 Nietzsche calls us not to any dogma, but to a higher and finer kind of life. And insofar as we are heeding that Socratic call, Nietzsche, who would be the anti-Socrates, is in fact part of the Socratic tradition as well. The fact that he is both a Socrates and an anti-Socrates is a perfectly Nietzschean oxymoron.
 
 尼采不号召我们信奉任何教条，而是追求一种更高、更精致的生活。就我们听从这一苏格拉底式的召唤而言，尼采——这个本应成为反苏格拉底的人——实际上也是苏格拉底传统的一部分。他既是苏格拉底又是反苏格拉底，这一事实是一个完美的尼采式矛盾修辞。
-
-测试追加行
-
