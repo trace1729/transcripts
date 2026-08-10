@@ -12,3 +12,16 @@ python3 -m venv .venv
 ```
 
 Set `TRANSCRIPTS_SOURCE_DIR` to override the default local transcript path.
+
+## Rebuild the web font
+
+The site uses a content-specific subset of LXGW WenKai. Rebuild it after
+adding transcripts that contain new Chinese characters:
+
+```bash
+.venv/bin/python -m pip install -r requirements-dev.txt
+./build-font.sh
+```
+
+The original font is licensed under the SIL Open Font License 1.1. A copy is
+included at `docs/fonts/OFL-LXGW-WenKai.txt`.

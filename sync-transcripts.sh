@@ -13,7 +13,12 @@ if [[ ! -d "$source_dir" ]]; then
 fi
 
 mkdir -p "$docs_dir"
-rsync --archive --delete --exclude index.md "$source_dir/" "$docs_dir/"
+rsync --archive --delete \
+  --exclude index.md \
+  --exclude fonts/ \
+  --exclude javascripts/ \
+  --exclude stylesheets/ \
+  "$source_dir/" "$docs_dir/"
 
 transcript_count="$(find "$docs_dir" -maxdepth 1 -type f -name '*.md' ! -name index.md | wc -l)"
 {
