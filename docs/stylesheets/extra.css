@@ -7,7 +7,8 @@
 }
 
 :root {
-  --md-text-font: Roboto, "LXGW WenKai GB Screen", "Noto Sans CJK SC", sans-serif;
+  --md-text-font: "Helvetica Neue", Helvetica, Arial, "LXGW WenKai GB Screen",
+    "Noto Sans CJK SC", sans-serif;
 }
 
 body {

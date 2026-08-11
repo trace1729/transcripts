@@ -15,9 +15,9 @@ Set `TRANSCRIPTS_SOURCE_DIR` to override the default local transcript path.
 
 ## Rebuild the web font
 
-The site uses Roboto for Latin text and a content-specific subset of LXGW
-WenKai GB Screen for Chinese text. Rebuild the subset after adding transcripts
-that contain new Chinese characters:
+The site uses the local Helvetica/Arial system font stack for Latin text and a
+content-specific subset of LXGW WenKai GB Screen for Chinese text. Rebuild the
+subset after adding transcripts that contain new Chinese characters:
 
 ```bash
 .venv/bin/python -m pip install -r requirements-dev.txt
