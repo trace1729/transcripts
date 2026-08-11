@@ -21,11 +21,6 @@ body {
   line-height: 1.7;
 }
 
-.md-typeset p {
-  text-align: justify;
-  text-justify: inter-character;
-}
-
 .md-typeset h1,
 .md-typeset h2,
 .md-typeset h3 {
