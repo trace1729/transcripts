@@ -27,8 +27,9 @@ transcript_count="$(find "$docs_dir" -maxdepth 1 -type f -name '*.md' ! -name in
   while IFS= read -r -d '' path; do
     filename="${path##*/}"
     title="${filename%.md}"
-    printf -- '- [%s](%s)\n' "$title" "$filename"
-  done < <(find "$docs_dir" -maxdepth 1 -type f -name '*.md' ! -name index.md -print0 | sort -z)
+    link_target="${filename//%/%25}"
+    printf -- '- [%s](%s)\n' "$title" "$link_target"
+  done < <(find "$docs_dir" -maxdepth 1 -type f -name '*.md' ! -name index.md -print0 | LC_ALL=C sort -z)
 } > "$index_file"
 
 echo "Mirrored $transcript_count transcripts from $source_dir to $docs_dir"
