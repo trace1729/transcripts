@@ -1,5 +1,24 @@
 # 专访3b1b：成为二手思考者的高昂代价LifeofLuba234
 
+> 视频类型：访谈类
+
+## 总结
+
+访谈末段涉及数学之美的感受、个人成长与成功定义。Grant认为，数学之美需要通过主动探索和“留白”来发现，而非被动灌输；他建议学习者放慢节奏、亲自推导，从而建立与数学之间的真实连接。在成功观上，他不愿给出固定答案，而是强调幸福、成就感与对他人的影响之间的平衡，并坦言自己仍在不断反思和调整中。整场对话展现出Grant作为一位深思熟虑、以创作初心为导向的内容创作者的独特视角。
+
+## 大纲
+
+- 婚礼演讲的艺术
+- YouTube创作之路的起点
+- 从新颖性转向价值性
+- 创作风格与内心沉淀
+- 与算法和数据的相处之道
+- 频道规划与团队构想
+- 数学之美与教育本质
+- LLM时代下的教育思考
+- 成功、幸福与人生哲学
+
+## 婚礼演讲的艺术
 
 So many other creators, they're just kind of like very unhappy people. Their top of mind thing, if they've been doing it for 10 years, is how do I stop doing it, right? They just feel exhausted. They feel burnt out. They feel like they're on this treadmill. And I was trying to introspect on like why I don't feel that way. I feel very energized saying like, wow, certainly in the next 10 years, I absolutely want to keep doing the same thing. If anything, do it more. But it's the fact that you packaged it. That's what matters because ultimately you just made the information accessible. I actually know the solution to education. You hire actors.
 
@@ -125,6 +144,8 @@ vibe. And then, you know, being very, very confident, even when you're internall
 
 ……氛围之中。”然后，即使你内心其实并不那么自信，如果你忘记了什么，也要表现得非常非常自信。这非常非常真实。我们确实见证了你歌剧般的演唱。为了给观众增加一点神秘感，关于这场特别的婚礼到底是怎么回事，它还融入了一点卢巴歌剧演唱。我觉得你做得很好，就像，你在演唱时明显进入了角色，而现在我们处于一种不同的模式，那是一种我以前没见过的卢巴。
 
+## YouTube创作之路的起点
+
 So speaking of math and speaking of YouTube, since you brought it up, I am curious. So you've been running your channel now for almost 10 years or a little over 10 years? Over 10. Over 10 years. Do you remember what was that moment and what was going through your mind when you were like, hey, I'm going to take a bet on going on this full time?
 
 说到数学和YouTube，既然你提到了，我很好奇。你的频道已经运营了将近10年，或者超过10年了吧？超过10年。超过10年。你还记得那一刻吗？当你决定全职做这个的时候，你脑子里在想什么？
@@ -220,6 +241,8 @@ like prove if it's true or not. Like it's much more objective than a lot of othe
 you know, that's one of the joys of math is that it even lends itself to that and you avoid some of the like flame wars that can emerge in more subjective fields. And in a perverse way, that also means that as a, you know, non-researcher who nevertheless is like really interested in understanding at a deep level why these things are true, if you just convey that, you don't necessarily, at least I believe, and maybe I'm wrong here, you don't necessarily have to have the like credentials to stand on to put out meaningful ideas because people can just judge the ideas in and of themselves.
 
 你知道，数学的乐趣之一就在于它甚至允许这样做，而且你可以避免一些在更主观的领域可能出现的激烈争论。而且，从某种反常的角度来说，这也意味着，作为一个并非研究者、但确实渴望在深层理解这些事物为何为真的人，如果你只是传达这一点，你并不一定——至少我认为，也许我错了——你并不一定需要依靠那些资历来提出有意义的想法，因为人们可以直接评判想法本身。
+
+## 从新颖性转向价值性
 
 In one of the conversations I was listening to with you, I think it was about five years ago or so, you mentioned that you're more of a type of person who likes examining things that already exist and explaining them to others in simple words.
 
@@ -322,6 +345,8 @@ independent of the topic lands on your next thing because i think there's a lot 
 the most SEO optimized relay for it. If it's something where you can consistently be a source for it, that's when like someone might say, well, I never would have thought to watch a video about like X, but hey, Luba made that video, but so it must be worthwhile. So it's.
 
 最懂SEO优化的转述者。如果是那种你能持续成为其来源的东西，那才是有人可能会说，嗯，我从来没想到会看一个关于X的视频，但是嘿，Luba做了那个视频，所以它一定值得一看。所以这就是。
+
+## 创作风格与内心沉淀
 
 It is worth being a little bit ruthless at the micro level on making sure that there's something distinct. Yeah, that's very true. This makes me think about purity of art. How did you find the purity of your style? Because I'm curious what the process of making a video is like, but I would imagine that, let's say you take neural networks, there's so much written about them, there's so much information online. How do you make sure that the essence of your art
 
@@ -447,6 +472,8 @@ piece with metrics and algorithm and why you're so focused on is the work really
 
 与指标和算法如此契合，以及为什么你如此专注于工作是否真的好，是因为你年轻时如此以学术界为导向，因为学术界非常关注过程，你研究、修补，试图产生真正好的工作，而不是过度关注晋升和外部世界。我希望我能说“哦，是的，那完全正确，我有这种类型”，不，但我确实有点……
 
+## 与算法和数据的相处之道
+
 a little bit, you know, addicted to the numbers in the right way. Okay. There's a specific example. I think focusing on the right metric rather than the wrong metric. So for example, wrong metric is number of views, right? Slightly better metric is watch time, right? I think even better metrics in that for the kind of thing I want to do is like watch time, let's say per month, five years from now or something. Right. And so.
 
 有点，你知道，以正确的方式对数字上瘾。好吧。有一个具体的例子。我认为关注正确的指标而不是错误的指标。例如，错误的指标是观看次数，对吧？稍微好一点的指标是观看时长，对吧？我认为对于我想做的事情，更好的指标是比如五年后每月的观看时长之类的。对吧。所以……
@@ -550,6 +577,8 @@ we've got on the like curricular side like lessons longer form series there's a 
 for whatever reason, the like next essence of blank, it just gets deprioritized. And then at the end of the year, I'm looking like, ah, man, I really meant to do that. And then I just didn't like other things came up. And so I would, knowing that that's where there's a lot of value in the long run, I would benefit from putting in place the processes to ensure that that actually happens.
 
 无论出于什么原因，下一个“某某的本质”就被降级了。然后在年底，我看着说，啊，伙计，我真的很想做的。然后我就是没做，其他事情出现了。所以我知道从长远来看那里有很多价值，我会受益于建立流程来确保那真的发生。
+
+## 频道规划与团队构想
 
 Yeah, I think the mental talk that you have with yourself when things like that happen is really, really important. And you strike me as someone who, as I mentioned before, is really grounded and is very focused on, am I doing good work? But now you're also saying that, oh, oftentimes when you don't follow your roadmap and principles, you are like, oh, I want to follow those principles again next year. What is the conversation that you have with yourself in those moments? And does it really put you down? Or what is your...
 
@@ -714,6 +743,8 @@ actually like working with other people like moment by moment as I'm like making
 rubber ducking ideas and things like that. I do this very informally now just with like friends and having like a more formal structure where it's like people who are aligned and they're actually making the thing with you. That probably could be more fun. But as far as the actual like in the moment day by day, I still kind of want to be able to wake up and have no meetings on my calendar and just kind of like.
 
 像橡皮鸭一样讨论想法等等。我现在非常非正式地这样做，只是和朋友一起，而有一个更正式的结构，比如有共同目标的人，他们真的和你一起制作东西。那可能会更有趣。但就实际当下的日常而言，我仍然希望醒来时日历上没有会议，只是有点……
+
+## 数学之美与教育本质
 
 do the thing that I want to do. Yeah, I feel very similarly. I kind of like being on my, most of my life I've done kind of loner things. And even the premise with like working in the office or working out of office, I think when I was younger and I was working at a startup or at companies, I was really excited to go to the office to interact with people. But that was because also it was defining period of my life. It was kind of like post-college time where you wanted to meet people and have friends. No one should work remotely post-college. Exactly, exactly.
 
@@ -895,6 +926,8 @@ And you can see in the way that they're writing about it that it was their own. 
 
 你可以从他们写的方式中看出那是他们自己的发现。他们本可以在某处读到，本可以让LLM告诉他们。但正是因为他们自己找到了，他们才如此受鼓舞，去挖出我的联系方式，联系我，试图向我推销这个想法。如果你不感到匆忙，你可以给自己那种体验。
 
+## LLM时代下的教育思考
+
 So since you're bringing up LLMs, how do you think education will change? And how are you thinking about educating your own son where, you know, LLM can just feed you all the information? Well, the fundamental problem with education has never been one of the medium of explanation.
 
 既然你提到了LLM，你认为教育会如何改变？你如何考虑教育你自己的儿子，因为LLM可以给你提供所有信息？嗯，教育的根本问题从来不是解释的媒介。
@@ -982,6 +1015,8 @@ Yeah, certainly the younger you are, you wouldn't want to pigeonhole too much th
 And I want them to love math. It's helpful if I know what they're already interested in and I can bring that in. Like I have a six-year-old niece who really likes coloring. I want her to be in love with math. And so in the math lessons we'll do together. You use color? Yeah, I use color. I make sure that color plays a meaningful role in that. And so it's like you can leverage their interest to try to get there. But I think it would be wrong to pigeonhole and be like, you will be an artist. And all of your time shall be spent on honing that craft. It's just too early.
 
 我想让他们爱上数学。如果我知道他们已经感兴趣的东西，并且我能把它带进来，那会很有帮助。比如，我有一个六岁的侄女，她非常喜欢涂色。我想让她爱上数学。所以在我们一起上的数学课中，你会用到颜色？是的，我用颜色。我确保颜色在其中扮演有意义的角色。所以，你可以利用他们的兴趣来达到目的。但我认为，把他们限制住并说“你将成为一个艺术家，你所有的时间都应该花在磨练这门手艺上”是错误的。那太早了。
+
+## 成功、幸福与人生哲学
 
 That makes sense. I want to talk briefly about success. How do you see success right now? What's your definition of success?
 
