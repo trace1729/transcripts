@@ -17,7 +17,12 @@ body {
 
 .md-typeset {
   font-size: 0.9rem;
-  line-height: 1.85;
+  line-height: 1.7;
+}
+
+.md-typeset p {
+  text-align: justify;
+  text-justify: inter-character;
 }
 
 .md-typeset h1,
