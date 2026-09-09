@@ -1,0 +1,132 @@
+# LLM架构 · 1114 · [LLM Architect] 10 为什么LLM无法理解输出马嘉祺，深入理解Glitch（故障）Token，词嵌入漂移、SFTRL、gradient 视角
+[视频链接](https://www.bilibili.com/video/BV1qZRZBcEiH)
+
+## 总结
+
+- 故障Token（Glitch Token）是指由于tokenizer与预训练数据不一致、后训练数据分布问题而无法被模型正确理解或输出的token，表现为胡言乱语或幻觉。
+- 故障Token的成因：tokenizer基于广泛未过滤的低质数据训练，产生大量低频token，而预训练阶段过滤低质量数据，导致这些token的embedding欠拟合。
+- 后训练（SFT/RL）中，由于故障token出现频率极低，正向梯度更新微弱，但负向更新持续存在，导致其embedding被推入语义真空或异常向量空间。
+- 以马嘉祺为例，模型能正确回答“时代少年团队长是马嘉祺”，但无法输出“马嘉祺”本身，通过对比base与SFT模型的lm_head embedding，发现其embedding发生显著偏移，邻近词混入特殊token，验证了上述机理。
+- 对千万2.5 1.5B模型进行复现，定义了glitch score（加权norm偏移、L2变化、cos drop），按此评分排序，排名靠前的多为特殊token及小语种token（如泰语、希伯来语），说明类似现象广泛存在。
+- 模型架构对故障token有影响：小模型weight tying将lm_head与embedding绑定，可能加剧分布差异；后续内容将回顾crossing loss、teacher forcing及梯度设计的几何直观。
+
+## 大纲
+
+1. 故障Token现象与本期内容介绍
+2. glitch token的早期实例与表现
+3. glitch token的成因：tokenizer与预训练数据不一致
+4. embedding与lm_head的基本结构
+5. 马嘉祺案例分析：base与SFT的embedding变化
+6. SFT与RL的梯度更新机制
+7. 梯度分析：为何佳琪embedding被推入异常空间
+8. 马嘉祺博客的结论与验证
+9. 对千万2.5模型的复现与glitch score计算
+10. glitch score排序结果、模型架构影响与内容预告
+
+## 正文
+
+### 1. 故障Token现象与本期内容介绍
+
+亲爱的朋友们，大家中午好。今天我们继续回到大元模型架构这个系列，这期我们介绍一个大元模型的一个bug，一个非常非常有意思的现象，叫glitch token或者叫故障token。也是最近这个mini max的发布了一篇分析的一篇报告，就是分析就为什么mini master模型无法识别，无法理解，无法输出马嘉祺的这个加气这两个字。它具体就是一个具体的一个token哈，就佳琪是一个token。
+
+其实我们在前年哈，我们在personal chagb t一个系列里边，我们在前年，我们当时介绍这个GPT4O的时候，我们当时很多人也发现了，他，这个我们去打开它，这O200K这个base的这个token nether的话，会发现有一些奇奇怪怪的这些中文，然后这个模型是无法理解，也就是说你在prompt里面给他提供这样一个头，这些token他无法理解，他会胡言乱语，同时呢他也无法输出。然后加气这篇文章呢，这篇分析报告呢，就是说这个模型是无法输出这个加气的，他就他那个这个问题就是无法识别马嘉祺是谁。
+
+那这一期呢我们就来整体介绍一下这个glitch token故障Token，同时呢这篇马嘉祺这篇blog呢，他从计算的视角做了一个充分的分析，我们这一期我们也来整体来介绍一下他这篇分析报告，同时呢我们也补充一些计算哈，更从grain的角度哈，learning的角度去分析，为什么会出现这样一种glitch token的这样一种现象啊。最后我们再实测一下，我们对这个千万2点五七呃1.5B的base和这个音速art版本，去复现一下他这个过程分析的一个过程。
+
+### 2. glitch token的早期实例与表现
+
+早期我们介绍这个glitch token的话，我们举两个例子哈，就是gt4O哈，就当时有比如这个给主人留下些什么吧，这是一个token哈，他无法理解也无法输出。然后包括今年年初去年底的时候，大概我记不清了哈，因为当时这个大圆模型一个公开的一个网站上，有这样一个匿名的一个模型，叫pony alpha，就当时他表现还可以啊，非常非常好，大家都在推测它到底是哪一个模型，它应该是个国产的模型，但是他具体是哪个国产的模型，大家不知道啊。
+
+最后大家很多人，早期有些人用到了这样一个special token，早期GLM的一个版本的话，应该有这样一个token，他是一个glitch token，就早期就无法理解，也无法输出哈。然后GPT当时去测这个popony alpha的话，它也是无法理解输出，很多人就说他是gr m一个新的新一代的模型，后来发现是对的对。那这个叫glitch Token，也叫被污染的token或者叫token zer，和这个model的一个mismatch，我们待会会展开来讲哈。对中文来说的话，它就是POC就被污染的一些中文词，他的表现就是彻底的胡言乱语与幻觉。
+
+如果这期我们后边儿从这个embedding的角度的话，从最终衬出来的一个embedding的角度的话，它会那这些词，它的embedding会进入到一个语义真空，或者一个奇奇怪怪的一个语义空间里面，这是理理解上他无法理解，它会激发模型的一个胡言乱语和幻觉。我就不展示了，大家可以试一下哈。mini max他去debug，去分析的时候是mini max的模型是无法generate出来这个佳琦这样一个token的，我们后边会讲从计算的视角来理解这个事情哈。
+
+### 3. glitch token的成因：tokenizer与预训练数据不一致
+
+就是早期我们当时的分析，就是token net，数据集与大圆模型预训练数据集的不一致。这个其实也很好理解哈，就是我们训练token nazer的话，是有更可能更广阔的未经过滤的一些数据，就比如这个我举例哈，就比如给主人留下些什么吧，这应该是早期K歌空间留言板的一个默认的一个文本，包括还有就是他们扒扒取了很多网页啊，发现有大量的这样这些词汇，然后锅内倒入植物油烧热哈，这些广泛的可能是菜谱的一个菜谱的一些网站。
+
+这些广泛的可能是菜谱的一个菜谱的一些网站
+
+就我们拿这个更广泛的这个未经过滤的数据集去训练，通过单词去去基于词频、基于BPE去去切词的时候，我们得到了一个一一个版本的一个token Noze，大概200K的一个水平哈，20万字，20万个token。但是我们在进入到训练阶段之后，我们会过滤大量的重复的或者是一些低质量的一些数据，就导致这些早期在token NEZERS上广泛出现的这些token，然后进入到训练阶段，他这个token embedding未经过充分的训练，也就是导致了一个欠拟合，就这些token呢可能还停留在一些初始化的初始化的一些随机状态，或者因为样本太少，被推向的，被推到了向量空间中的一个莫名其妙的角落。然后马嘉祺这篇文章里边，他的结论就是说后训练过程中，这些token他进入到了到了一个区域，他的隐瞒ding进入了一个区域，这个区域的向量空间已经被挤压或者污染啊，这是一个直觉性的一个描述哈。
+
+### 4. embedding与lm_head的基本结构
+
+呃我们在介绍这篇文章之前，我们可能要铺垫一些概念哈，就是我们来还原一下这个embedding Look up table，或者叫以及这个alarm heads，就是一个token id或者一组token id，一个句子被token id化之后，我们是第一层是要进入一个w t e word token embedding，通过这个vocavocabulary embedding这个look up table去索引它对应的embedding，然后就进入到transformer的block里边，最后在输出之前会得到一个hidden states，Hien states，经过一个i m hides或者叫UEBING，然后把它映射到整个词表上的一个LOGI，然后再做soft max得到一个概率向量。如果是训练的话结束，如果是推理的话，我们要记从这个概率向量里边去做采样啊，这个地方写的可能不准哈，这个地方应该叫U吧，一般叫an embedding哈。
+
+好我们来详细的去看一下这个过程哈，就input embedding look up table或者叫vocabulary embedding，在这个输入层面的一个word token embedding，他是V8D的这样一个大矩阵，它的作用就是如果把这个token id变成embedding Vector，就是假如说你这个token id的index是I的话，就索引它对应的EI他这一步很像查字典，是一个look up table的一个过程。haden state就是他是个低维的，就假设transformer的一个维度的话是低维的话，就是我们最终得到了这个token的这个headen state，就是一个低位的一个向量，他是一个CONTEXO化的一个embedding哈。
+
+arm had的就是output Output embedding或者叫on embedding，它本质上就是一个MP是一个啊，是一个linear的一个呃linear的一个layer，就把headen states映射到词词表的一个log hiit states，我改BURELOGI，然后把它给转化成概率，好，SMAX转化成概率，然后然后采样生成下下一个token id啊，对采样呃训练的时候是没有采样这个过程的哈，就是那个训练的话，我指的是那个PRETRAIN和ST哈，对它的过程就是呃通过这个WU哈，这个I'MEBING这个matrix，或者或者叫arm has把它变成ZT哈，ZT再通过soft max变成一个pt t，然后采样得到一个下个token id，或者叫W或者叫WO呃ODS，它它这个维度呢和这个和这个vocabulary Embedding它的维度是一致的哈，有些版本哈vocavery very imagine哈和这个arm has他俩是identical的。
+
+它俩是一致的，但是更大的模型一般选择它俩是不一致的，就是独立训练的，他俩没有耦合关系的。开源的语言模型的话，早期GPT-2的话，我们其实也讲过，很早之前也讲过，我后边会把之前我们讲过的视频放到这个简介里面。就是叫weight tying，就绑定，就把这个lm_head和这个input embedding绑定在一起。GPT-2这个源码里边，把这个word embedding叫WTE，把这个output或者叫lm embedding matrix称之为lm_head。
+
+Gemma 3的一个小模型的话，大家可以去看他的配置，小模型它同样也是weight tying，它是全程绑定的。然后大模型的它是不复用的。K2.5的话，大家也可以去读它的config.json，它也是untied。
+
+### 5. 马嘉祺案例分析：base与SFT的embedding变化
+
+那下面我们来分析一下这个training的一个analysis，呃，对我们定义一些概念吧。就是首先因为他当时的分析就是，他对比了这个base model和SFT model的lm_head，就是unembedding，lm embedding这个matrix，他对对比了。就佳琦，他在预训练的时候得到了embedding，和这个后训练之后，就SFT之后的embedding，他就算了它的cos similarity是0.95。这个数直觉上我们感觉挺大的，但是其实在整个大语言模型训练过程中，这个词是非常非常低的。我们把它转化成弧度制的话，它是16度哈，大概是一个比较显著的一个水平，比较显著的偏离了base model训练出来了这个佳琦，这个他的lm_head对应的一个embedding。我们也可以去算一下他的这个范数的一个差，差距哈，它大概是0.29的一个范数的一个unit的一个距离。
+
+我同时呢，我们也可以从这个logits的视角，我们来分析一下这个事情哈。就是因为我们知道logits，是因为我们知道他为什么没办法输出呢？是因为我们算完softmax之后，加上这个embedding，因为他到了一个奇怪的位置，他很难被采样到。好，那我们就要不只是要看它的embedding，我们同时要看它的hidden states。对这个，这是这个佳琦这个词，它对应的hidden states之后，经过这个lm_head，就是这个lm embedding这个vector得到了一个logits，我们可以把它写成这样一种cos的形式。cos是看方向，now我们看长度，也就是这一期我们后边分析这个embedding的话，我们除了分析norm，我们要分析cos。就是他俩方向接近但长度变大的话，就是这个norm变大的话，token的logits可能明显升高；就是方向接近但长度变小的话，token可能很难被生成。
+
+### 6. SFT与RL的梯度更新机制
+
+然后好，那这期我可能真的想讲的就是这个，因为后训练它既包括广义上后训练，它也包括不止包括SFT，还包括RL。我们来看哈，就SFT它是一个典型的，它跟pretraining一样，他是一个teacher forcing的一个NTP的一个过程。它的损失就是负log p，p是这个softmax之后的一个结果，就是对这个log做softmax。那这样的话，我们可以对这个lm_head，对这个所谓的unembedding vector做微分，我们去算它的梯度，那这样的话我们去分析它的这个embedding的一个变化的一个趋势。
+
+当这个token是目标输出的时候，因为teacher forcing，因为我们这在SFT或者是pretrain的时候，它是一个ground truth，一个一个token，或者ground truth的一个label去对应。就如果假如说这个token就是ground truth，我们去看它对应的概率，对像这种形式啊，就i等于y的情况下，它是会被更新的，他会被强烈的更新。但是啊，他文章里边，其实他那个马嘉祺那篇minimax那篇blog里面，
+
+其实也讲了，他在后训练的过程中，加齐这个数据只出现了五条，也就是在这一块儿，它其实被更新的非常非常弱。就是当他频繁地出现在SFT的答案模板、姓名、角色标签或者工具调用片段中时，更新会更加集中。就是因为有这样一个gradient的update，若嘉琪在这个token在SFT数据中有特殊的一个分布，就是异常的少，它的embedding vector会出现outlier式的一个变化，就非常非常合理。
+
+我们这边展开去对比一下这个post training里面另外一个典型的方法，就是RL，它这边记号或者是含义就发生了变化。因为我们是在模型RL的过程中，是模型自己去生成token，在RL的setting之下，他这个每个生成token称之为一个动作，然后新的动作追加到context里面，称之为状态。RL的objective或者loss function的话，就是负advantage乘以log policy。大家如果对这块不清楚的话，可以回看我们这个agentic AI以及这个RL for LLM相关的系列视频，重点是看policy gradient。看什么TRPO、PPO那些东西，它的gradient我们看一下，它的gradient就是它多了一个advantage，然后他这个动作呢是要和这个ground truth的一个label去做对应。
+
+我们对比看一下，首先这两个形式上，其实我们之前在那个两个RL系列里面也讲过，这个SFT和RL的话，这个objective和这个gradient的层面，他俩是一致的，只是系数不同，然后一些记号含义不同。那这边系数不同，就是之前这个地方系数SFT的系数是一，RL的话这个系数是advantage，是优势，是基于这个reward之后算出来的一个优势。然后这个之前是一个具体的label y_t，现在是一个动作。
+
+我们来看一下这个RL，如果A_t大于零的话，说明模型在这一步采样到的token对最终的奖励是有正的贡献，梯度下降会提高该token的logit，降低其他竞争token的logit。就是SFT的话，是老师给出明确的答案，正确的token就是y_t。而RL的话，是老师只给出结果的评价，这条回答总体好不好，就是reward，然后根据整段回答的得分，回头调整每个被采样的token的一个概率。
+
+### 7. 梯度分析：为何佳琪embedding被推入异常空间
+
+这是这里边，如我们简单对比一下这个post training里边，就是SFT和RL的一个差异。本质上都会去更新，我们看它有objective或者loss function，它都会更新embedding vector，然后它的公式也是一致的，general意义上是一致的，都是这样一种形式，只是系数不同，然后记号的一个含义不同。
+
+补充完这个这个事情之后，我们再来从计算的角度再分析一下。这个我们通过它最终是表现，结果上是表现在logit的一个差异上，因为logit很快会被转化成概率，然后去算loss function，然后再update这个，在反向传播update这个embedding vector或者embedding matrix。
+
+好，我们来重点去对比base model的logit和这个SFT的一个logit，我们把它写成两种形式，就是SFT的hidden states作用在这个embedding对应的vector，它俩相减，我们定义delta hidden states和delta embedding vector。最终我们写出来这个delta Z的变化，就是base model的hidden states这个token的hidden states乘以这个delta的embedding vector。
+
+然后是dirt hien states，再乘以这个base model的一个embedding vector，然后右边是一个二阶哈。大家可以看到最终的变化哈，它不只有这个embedding vector这个变化，它还包含了这个hidden state这个变化啊。这是本身穿成串成方的各个layer，他在预训练和这个SFT之后也是有变化的。
+
+好，我们来再来补充介绍一下这个gradient descent，我们就以这个SFT的一个loss function为例哈，因为我们重点分析的是它是怎么去影响WI，也就是embedding matrix里边这个对应的这个token的embedding vector。我们写出这个梯度下降的一种形式哈，就是ETA表示学习率哈。好，就当I等于YX，也是我们关注佳琦那个token位置的，那个输出的一个结果，看他的概率值，也就是当前token i就是当前位置的正确，下一个token他的德尔塔WI就是一减啊。我们把这个负号乘进去，把这个这个地方啊这个视性函数哈，indicate function就为一把这个负号乘进去哈。
+
+就是一减PI从梯度的第三者的角度哈，就会它如果我们假如有这个梯度的信号，是对这样一种一的乘以一减PI乘以H的话，它会把WI往H的方向拉。这个我们后边会我在找一期视频哈，我们介绍torch的时候，我们在介绍这个gradient descent，再重新回顾这个cross entropy loss，或者叫teacher forcing的时候，我们在详细的展开这部分过程哈。他会把W往H这个方向去拉，因为你就往这个方向去更新的哈，直观让模型来学习，当我遇到类似的hidden state的上下文时，应该更容易输出这个token。
+
+i不等于Y时，就是token i不是正确答案的时候，德尔塔WI就是一的PIH，他就会把WI往远离H的方向去推，直观让模型在学习，在这个上下文下，模型不该输出token i。这更多的细节哈，大家去呃，如果不清楚的话，大家可以等我下期内容哈，我会在这个PyTorch哈，这个my呃数学这一块我再补充介绍这部分的内容，就重新回顾一下这个cross entropy loss，以及这个啊这个梯度下降的一个直观的一个理解。
+
+也就是说当佳琪在后训练过程中相关的数据很少时，模型就会减少正向的目标更新，但是他同时但是但是这不能回答一个问题哈，就是为什么它会挤到了一个奇怪的语义空间里面。就是我们这个更新哈，我们虽然是一个teacher forcing更新，但是更新的过程中也是对整个词表进行更新的，soft max的父类更新一直存在。也就我们更新，假如说这个五条数据哈，后选里面有五条佳琪的数据哈，它在更新的时候，不是说我们只更新佳琪这五条数据只更新佳琪，同时你因为你你在整个词表上对其他的token也有概率，那那这部分也会去做gradient descent。
+
+gradient descent就是soft max，父类更新一直存在，即使佳琪从未作为label出现，只要模型在这些上下文中分配了概率哈，它就会缩到梯度。然后vocabulary size是220K的话，那就是20万哈，大概平均的概率就是5×10的负6次方。一个正样本的影响通常是很大的，就目标token出现一次时，更新系数是1减PI约等于一哈，因为我们词表是非常非常大的，可能很多概率哈它出它到了0.1哈，它就是一个非常非常高的概率哈。而均匀负类的更新，负向系数约为5×10的负6次方，也就是总的更新是正类的更新减去负类的更新。第一类第一项是正类的拉进，第二类是负向推远，某个token数据少，只能说明第一项可能小，但第二项仍然存在。
+
+### 8. 马嘉祺博客的结论与验证
+
+好，这就是我们补充了一些呃，大圆模型训练和推理的一些基本的概念哈，以及这个SFT和RL的一个对比。
+
+下面我们回到这个博客里边，整体再讲一下这篇博客。他首先就是社区里边有讨论，为什么模型不能正确的理解加齐和进行加齐的一个输出。首先所谓的训练和推理的token没有对齐，是不存在的。加齐是有一个专门的一个token。然后从norm的角度，后来他们去统计这个norm，就是把embedding vector变成一个二番数，看整体词表200K的规模。他这个词表加齐是在非常非常中心的区域，norm也没有异常。然后语义的近邻，就是我们去分析这个加齐这个embedding和整个词表其他token的embedding去算近邻搜索的话，他也能调用出来亚轩千玺这些明星对应的token。
+
+然后他对比了预训练和后训练的一个对比，就是预训练是可以正确的输出时代少年团的队长是马嘉祺，也就是说预训练里面是有加齐这个很多的相关的语料，后训练模型倾向于回避该token，依然无法正常的输出token。然后再猜测二就是后训练数据分布的问题，因为他最终debug发现这个样本不足以五条。
+
+他现在分析了第一个事情，就对比这个base model和sft model。首先对比了这个vocabulary embedding，就是input那个层面的那个embedding几乎不变，这我就不展开讲了。然后检查输出侧的lm head，啊对，这个是输入是几乎不变的，然后就是输出就发现权重向量在后训练过程中发现了显著的偏移。第一就是余弦相似度大幅下降，那我们的变化也很大，它的cosine similarity只有0.95，大家可以如果算分位数的话，它是非常非常靠边缘的一个范围。最近的邻近语义结构发生巨变，在lm head中加齐向量的最近邻进行对比，可以直观的看到这种退化。预训练阶段，其近邻以语义相关的中文人名为主，就是些明星的名字，但整体聚类结构合理。SFT之后，近邻结构发生了明显的恶化，尽管排名靠前的仍保留部分人名，但混入了大量的特殊token或者造成的token。也就是说在这个后训练过程中，这个区域的向量空间已经被挤压和污染。其他的我就不讲了，类似的。
+
+然后他就开始扫描所有的token，因为他以上的分析都是针对佳琪这个token做的分析，后边他去遍历其他的token，去发现这个embedding vector在lm head的word embedding，在base model和sft model的一个显著的一个偏移。其他的我就不展开讲了，我觉得比较简单了。
+
+### 9. 对千万2.5模型的复现与glitch score计算
+
+我们最后回到实际的去分析一下吧。我们去对比看一下这个千万2.25，1.5B和1.5B instruct的版本，他们都是tie的，因为他是小模型，应该三B以下好像都是tie的一种模式，小模型是为了减少模型的参数量。好，我们重点看几个事情，首先base model我们记为W0，V8D，我们选择的是，因为他是input和这个lm head是一致的，就这里边可能差异不是很明显。就base model我们记为W0，SFT或者instruct之后的称为v by d，是WE。然后第二个token的行向量就是WI0或者WRIe，他是d维的。我们算他们的norm，然后我们看一下norm的一个比例，就是看norm是被放大还是被压低。然后我们去看它的cos similarity，就是方向是否旋转，这个是cos similarity是-1到1的，我们把转化成一个弧度，这个弧度的话是0到派的。我们还可以去算这个norm的一个整体的一个位移，我们去计算他的norm ratio的一个异常程度，我们用这个t-score。好，那下面我们来对这个矩阵整体去算。
+
+cos similarity啊，这个应该是非常非常慢的，因为大家最好把它放到GPU上去算哈，因为它是一个大概200K vocab size，然后把它转化成一个角度弧度制哈，算这个NMNN1除以N0，然后再算个偏移哈，R2范数的一个偏移。我们把它整理到一个data frame里边，就关于这个cos sim和这个弧度这个关系。大家可以看到哈，cos sim的值是-1到1，然后这个角度呢是0到π，cos下面就越小，就方向偏移的越大，然后对应的这个弧度越大，大概这样一个关系哈。
+
+对我们定义一个glitch score哈，就两倍的这个NM的一个偏移，加上1.5倍的这个L2相对的范数的一个变化，然后cos的一个drop，drop和0.5的一个s t norm。我们按这个比如norm的近距去展开所有的token，大家可以看到哈，因为我们对比的是base norm那个base norm，base的一个norm和这个skt norm，然后去按这个norm的一个偏移去算这个，去对比所有的token哈。
+
+大家可以看到哈，排名前两的就是to call，显然呢，我们这个预训练里边没有见过太多的to call，但是后训练sft是要显示的把这个to call给加进去，他的norm的变化就很大，就是0.41到0.43，就是to call哈，这个XL的一个前缀和这个结尾，他俩是变化最大的。
+
+然后其次呢就是这些奇奇怪怪的中文啊，这个对比的是L2范数的一个相对的R2范数的一个变化，大概也是类似的结果吧，也是to call哈，这些奇怪的中文奇奇怪怪的token，当然还有这个最近应该是泰语吧，对这是好像是希伯来语哈，就是小语种哈。
+
+### 10. glitch score排序结果、模型架构影响与内容预告
+
+那最后呢，我们就按这个我们定义的这个glitch score哈，去做排序的话，也是这些啊，这应该是泰语小语种，小语种在base model和sft model呃，和sft之后发生了一个显著的偏移哈，对这是对比了他们norm的一个变化哈。大家也可以看到，这个图和最开始画的图可能差距是非常非常大的啊。
+
+这大概可以简单这样分析哈，就是因为我们毕竟是一个1.5B的小模型哈，而且我们这边他是他的这个arm head和这个vocabulary embedding，它是tie起来的，它是绑定在一起的，所以他这个可能和这个分布不是很一样。好以上就是本期的全部内容了哈，很快我们会重新recap一下这个crossing loss，teacher forcing啊，就是pretrain和sft，以及看一下这个gradient design，它的一个直观的比较哈，就是它从几何直观上去看这个gradient design在update是什么。好，以上就是本期的全部内容。
