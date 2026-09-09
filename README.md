@@ -12,6 +12,8 @@ python3 -m venv .venv
 ```
 
 Set `TRANSCRIPTS_SOURCE_DIR` to override the default local transcript path.
+The sync step also regenerates the Zensical navigation from the transcript
+directory tree and rebuilds the linked index page.
 
 ## Rebuild the web font
 
